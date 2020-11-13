@@ -37,6 +37,7 @@ int main() {
 
     vector<Container *> containers;
     for(int i = 0; i < containersCount; i ++){
+        getline(cin, line);
         vector<string> args = split(line, ' ');
         int a = stoi(args[0]);
         int b = stoi(args[1]);
