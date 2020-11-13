@@ -16,7 +16,21 @@ struct Container{
         this->c = c;
     }
     static bool compare(Container * c1, Container * c2, int category){
-        return true;
+        int c1CatCount;     //num of certain category
+        int c1Difference;   //num of swaps needed to achieve certain category
+
+        int c2CatCount;
+        int c2Difference;
+        switch (category) {
+            case 0: c1CatCount = c1->a; c1Difference = c1->b + c1->c; c2CatCount = c2->a; c2Difference = c2->b + c2->c; break;
+            case 1: c1CatCount = c1->b; c1Difference = c1->a + c1->c; c2CatCount = c2->b; c2Difference = c2->a + c2->c; break;
+            case 2: c1CatCount = c1->c; c1Difference = c2->a + c2->b; c2CatCount = c2->c; c2Difference = c2->a + c2->b; break;
+            default: cout<<"Error"; return false;
+        }
+        if(c1Difference != c2Difference){
+            return c1Difference < c2Difference;
+        }
+        return c1CatCount > c2CatCount;
     }
 };
 vector<string> split(string str, char divider){
@@ -46,7 +60,7 @@ int main() {
         int a = stoi(args[0]);
         int b = stoi(args[1]);
         int c = stoi(args[2]);
-        containers.push_back(new Container(a, b , c));
+        containers.push_back(new Container(i, a, b , c));
     }
 
     for(auto c : containers){
