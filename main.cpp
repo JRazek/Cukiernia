@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -21,6 +22,22 @@ struct Container{
             default: cout<<"ERROR"; return -1;
         }
     }
+
+    struct Comparator {
+        int category;
+        Comparator(int category){
+            this->category = category;
+        }
+        bool operator()(Container * c1, Container * c2){
+            return compareQuery(c1, c2, category);
+        }
+    private :
+        static bool compareQuery(Container * c1, Container * c2, int catNum) {
+            int e1 = c1->getEffortForCategory(catNum);
+            int e2 = c2->getEffortForCategory(catNum);
+            return e1 < e2;
+        }
+    };
 };
 vector<string> split(string str, char divider){
     vector<string> result;
@@ -61,20 +78,36 @@ int main() {
         containers.push_back(new Container(i, a, b , c));
     }
 
-    int catContainers[3] = {0};
-    catContainers[0] = containersCount;//all the containers are default to a
+    int catContainersCount[3] = {0};
+    catContainersCount[0] = containersCount;//all the containers are default to a
 
     for(int cat = 1; cat <= 2; cat++) {
         for (int i = 0; i < containersCount; i++) {
             Container * c = containers[i];
             if(c->getEffortForCategory(c->bestCandidate) > c->getEffortForCategory(cat)){
-                catContainers[c->bestCandidate] -- ;
+                catContainersCount[c->bestCandidate] -- ;
                 c->bestCandidate = cat;
-                catContainers[cat] ++;
+                catContainersCount[cat] ++;
             }
         }
     }
 
+    if(catContainersCount[0] == 0 || catContainersCount[1] == 0 || catContainersCount[2] == 0){
+        vector<Container *> categoryContainers[3];
+        categoryContainers[0] = vector<Container*>();
+        categoryContainers[1] = vector<Container*>();
+        categoryContainers[2] = vector<Container*>();
+
+        for(auto c : containers){
+            categoryContainers[c->bestCandidate].push_back(c);
+        }
+        for(int i = 0; i < 3; i ++)
+            sort(categoryContainers[i].begin(), categoryContainers[i].end(), Container::Comparator(i));
+        while(catContainersCount[0] == 0 || catContainersCount[1] == 0 || catContainersCount[2] == 0){
+            //do here stuff
+            break;
+        }
+    }
 
 
 
