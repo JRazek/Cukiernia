@@ -7,14 +7,14 @@ using namespace std;
 
 struct Container{
     const int id;
-    int bestCandidate = 0; //0 for a, 1 for b, 2 for c. we assume its a unless proving its not.
-    int productsPerCategory[3];
-    Container(int id, int a, int b, int c): id(id){
+    long bestCandidate = 0; //0 for a, 1 for b, 2 for c. we assume its a unless proving its not.
+    long productsPerCategory[3];
+    Container(int id, long a, long b, long c): id(id){
         this->productsPerCategory[0] = a;
         this->productsPerCategory[1] = b;
         this->productsPerCategory[2] = c;
     }
-    int getEffortForCategory(int catNum){
+    long long getEffortForCategory(int catNum){
         switch (catNum) {
             case 0: return productsPerCategory[1] + productsPerCategory[2];
             case 1: return productsPerCategory[0] + productsPerCategory[2];
@@ -25,16 +25,21 @@ struct Container{
 
     struct Comparator {
         int category;
-        Comparator(int category){
+        bool negative;
+        Comparator(int category, bool negative = false){
             this->category = category;
+            this->negative = negative;
         }
         bool operator()(Container * c1, Container * c2){
-            return compareQuery(c1, c2, category);
+            return compareQuery(c1, c2, category, negative);
         }
     private :
-        static bool compareQuery(Container * c1, Container * c2, int catNum) {
-            int e1 = c1->getEffortForCategory(catNum);
-            int e2 = c2->getEffortForCategory(catNum);
+        static bool compareQuery(Container * c1, Container * c2, int catNum, bool negative = false) {
+            long e1 = c1->getEffortForCategory(catNum);
+            long e2 = c2->getEffortForCategory(catNum);
+            if(negative){
+                return e1 > e2;
+            }
             return e1 < e2;
         }
     };
@@ -81,18 +86,19 @@ int main() {
     int catContainersCount[3] = {0};
     catContainersCount[0] = containersCount;//all the containers are default to a
 
-    for(int cat = 1; cat <= 2; cat++) {
+    for(int cat = 1; cat < 3; cat++) {
         for (int i = 0; i < containersCount; i++) {
             Container * c = containers[i];
             if(c->getEffortForCategory(c->bestCandidate) > c->getEffortForCategory(cat)){
                 catContainersCount[c->bestCandidate] -- ;
                 c->bestCandidate = cat;
                 catContainersCount[cat] ++;
+                cout<<"";
             }
         }
     }
 
-    if(catContainersCount[0] == 0 || catContainersCount[1] == 0 || catContainersCount[2] == 0){
+    if((catContainersCount[0] == 0 && catPresent[0]) || (catContainersCount[1] == 0 && catPresent[1]) || (catContainersCount[2] == 0&& catPresent[2])){
         vector<Container *> categorySortedContainers[3];
         categorySortedContainers[0] = vector<Container*>();
         categorySortedContainers[1] = vector<Container*>();
@@ -106,73 +112,53 @@ int main() {
         for(int i = 0; i < 3; i ++)
             sort(categorySortedContainers[i].begin(), categorySortedContainers[i].end(), Container::Comparator(i));
 
-        if(catContainersCount[0] == 0 || catContainersCount[1] == 0 || catContainersCount[2] == 0){
-            Container * bestContainerForCat[3] = {nullptr};
-            for(int i = 0; i < 3 ; i ++){
-                int c = catContainersCount[i];
-                if(c == 0 && catPresent[i]){
-                    bestContainerForCat[i] = categorySortedContainers[i][0];
-                }
-            }
-            {
-                Container * lastUsed = nullptr;
-                int lastUsedCat = -1;
-                for (int i = 0; i < 3; i++) {
-                    int c = catContainersCount[i];
-                    if (c == 0) {
-                        Container * used = bestContainerForCat[i];
-                        //yeah this code is shit. sry
-                        if (used != nullptr && used == lastUsed) {
-                            //conflict between two.
-                            //there must have been two already.
-                            //conflict!
-                            Container * catACon0 = categorySortedContainers[lastUsedCat][0];
-                            Container * catACon1 = categorySortedContainers[lastUsedCat][1];
+        Container * usedContainerPreviously = nullptr;
 
-                            Container * catBCon0 = categorySortedContainers[i][0];
-                            Container * catBCon1 = categorySortedContainers[i][1];
-
-                            //cat A num - lastUsedCat
-                            //cat B num - i
-                            //find the best combination
-
-                            int s1 = catACon0->getEffortForCategory(lastUsedCat) + catBCon1->getEffortForCategory(i);
-                            int s2 = catACon1->getEffortForCategory(lastUsedCat) + catBCon0->getEffortForCategory(i);
-                            if(s1 < s2){
-                                //first in A second in B
-                                categorySortedContainers[lastUsedCat][0]->bestCandidate = lastUsedCat;
-                                categorySortedContainers[i][1]->bestCandidate = i;
-                            }else{
-                                categorySortedContainers[lastUsedCat][1]->bestCandidate = lastUsedCat;
-                                categorySortedContainers[i][0]->bestCandidate = i;
-                            }
-                            
-                        }
-                        lastUsed = used;
-                        lastUsedCat = i;
+        bool resolveConflict = false;
+        for(int  i = 0; i < 3 ; i++){
+            if(catContainersCount[i] == 0 && catPresent[i]){
+                Container * firstC = categorySortedContainers[i][0];
+                if(usedContainerPreviously == firstC){
+                    resolveConflict = true;
+                }else{
+                    //resolve
+                    if(catContainersCount[firstC->bestCandidate] == 1) {
+                        resolveConflict = true;
+                    }else{
+                        catContainersCount[firstC->bestCandidate]--;
+                        firstC->bestCandidate = i;
+                        catContainersCount[firstC->bestCandidate]++;
                     }
                 }
-            }
-            for(int i = 0; i < 3; i ++){
-                int c = catContainersCount[i];
-                if(c == 0){
-                    Container * used = bestContainerForCat[i];
-                    if(used != nullptr)
-                        used->bestCandidate = i;
-                }
+                usedContainerPreviously = firstC;
             }
         }
+        if(resolveConflict)
+            cout<<"REWRITE!";
     }
 
 
 
 
-    int sum = 0;
+    long long sum = 0;
     for(int i = 0; i < containersCount; i ++){
         Container * c = containers[i];
         sum += c->getEffortForCategory(c->bestCandidate);
     }
     cout<<sum;
+    long long t[3] = {0};
+   for(int i = 0; i < 3; i ++){
+       Container * c1 = containers[0];
+       Container * c2 = containers[1];
+       Container * c3 = containers[2];
+       int in1 = (i + 1) % 3;
+       int in2 = (i + 2) % 3;
+       t[i] = c1->getEffortForCategory(i) + c2->getEffortForCategory(in1) + c3->getEffortForCategory(in2);
+       cout<<"";
+   }
+    for(int i = 0; i < 5000; i ++){
+       // cout<<i<<" ";
+    }
     for(auto c : containers){
         delete c;
     }
