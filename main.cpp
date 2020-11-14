@@ -93,19 +93,74 @@ int main() {
     }
 
     if(catContainersCount[0] == 0 || catContainersCount[1] == 0 || catContainersCount[2] == 0){
-        vector<Container *> categoryContainers[3];
-        categoryContainers[0] = vector<Container*>();
-        categoryContainers[1] = vector<Container*>();
-        categoryContainers[2] = vector<Container*>();
+        vector<Container *> categorySortedContainers[3];
+        categorySortedContainers[0] = vector<Container*>();
+        categorySortedContainers[1] = vector<Container*>();
+        categorySortedContainers[2] = vector<Container*>();
 
         for(auto c : containers){
-            categoryContainers[c->bestCandidate].push_back(c);
+            categorySortedContainers[0].push_back(c);
+            categorySortedContainers[1].push_back(c);
+            categorySortedContainers[2].push_back(c);
         }
         for(int i = 0; i < 3; i ++)
-            sort(categoryContainers[i].begin(), categoryContainers[i].end(), Container::Comparator(i));
-        while(catContainersCount[0] == 0 || catContainersCount[1] == 0 || catContainersCount[2] == 0){
-            //do here stuff
-            break;
+            sort(categorySortedContainers[i].begin(), categorySortedContainers[i].end(), Container::Comparator(i));
+
+        if(catContainersCount[0] == 0 || catContainersCount[1] == 0 || catContainersCount[2] == 0){
+            Container * bestContainerForCat[3] = {nullptr};
+            for(int i = 0; i < 3 ; i ++){
+                int c = catContainersCount[i];
+                if(c == 0 && catPresent[i]){
+                    bestContainerForCat[i] = categorySortedContainers[i][0];
+                }
+            }
+            {
+                Container * lastUsed = nullptr;
+                int lastUsedCat = -1;
+                for (int i = 0; i < 3; i++) {
+                    int c = catContainersCount[i];
+                    if (c == 0) {
+                        Container * used = bestContainerForCat[i];
+                        //yeah this code is shit. sry
+                        if (used != nullptr && used == lastUsed) {
+                            //conflict between two.
+                            //there must have been two already.
+                            //conflict!
+                            Container * catACon0 = categorySortedContainers[lastUsedCat][0];
+                            Container * catACon1 = categorySortedContainers[lastUsedCat][1];
+
+                            Container * catBCon0 = categorySortedContainers[i][0];
+                            Container * catBCon1 = categorySortedContainers[i][1];
+
+                            //cat A num - lastUsedCat
+                            //cat B num - i
+                            //find the best combination
+
+                            int s1 = catACon0->getEffortForCategory(lastUsedCat) + catBCon1->getEffortForCategory(i);
+                            int s2 = catACon1->getEffortForCategory(lastUsedCat) + catBCon0->getEffortForCategory(i);
+                            if(s1 < s2){
+                                //first in A second in B
+                                categorySortedContainers[lastUsedCat][0]->bestCandidate = lastUsedCat;
+                                categorySortedContainers[i][1]->bestCandidate = i;
+                            }else{
+                                categorySortedContainers[lastUsedCat][1]->bestCandidate = lastUsedCat;
+                                categorySortedContainers[i][0]->bestCandidate = i;
+                            }
+                            
+                        }
+                        lastUsed = used;
+                        lastUsedCat = i;
+                    }
+                }
+            }
+            for(int i = 0; i < 3; i ++){
+                int c = catContainersCount[i];
+                if(c == 0){
+                    Container * used = bestContainerForCat[i];
+                    if(used != nullptr)
+                        used->bestCandidate = i;
+                }
+            }
         }
     }
 
