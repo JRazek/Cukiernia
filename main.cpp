@@ -58,10 +58,6 @@ vector<string> split(string str, char divider){
     return result;
 }
 
-int askChainDelta(){
-
-}
-
 int main() {
     string line;
     getline(cin, line);
@@ -130,8 +126,9 @@ int main() {
                 catContainersCount[asksFor->bestCandidate]--;
                 asksFor->bestCandidate = i;
                 catContainersCount[i]++;
-            }else{
-                cout<<"CHAIN TO DO";
+            }
+            else{
+                
             }
         }
     }
