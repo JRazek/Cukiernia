@@ -58,6 +58,9 @@ vector<string> split(string str, char divider){
     return result;
 }
 
+int askChainDelta(){
+
+}
 
 int main() {
     string line;
@@ -97,70 +100,61 @@ int main() {
             }
         }
     }
-
-    if((catContainersCount[0] == 0 && catPresent[0]) || (catContainersCount[1] == 0 && catPresent[1]) || (catContainersCount[2] == 0&& catPresent[2])){
-        vector<Container *> categorySortedContainers[3];
-        categorySortedContainers[0] = vector<Container*>();
-        categorySortedContainers[1] = vector<Container*>();
-        categorySortedContainers[2] = vector<Container*>();
-
-        for(auto c : containers){
-            categorySortedContainers[0].push_back(c);
-            categorySortedContainers[1].push_back(c);
-            categorySortedContainers[2].push_back(c);
-        }
-        for(int i = 0; i < 3; i ++)
-            sort(categorySortedContainers[i].begin(), categorySortedContainers[i].end(), Container::Comparator(i));
-
-        Container * usedContainerPreviously = nullptr;
-
-        bool resolveConflict = false;
-        for(int  i = 0; i < 3 ; i++){
-            if(catContainersCount[i] == 0 && catPresent[i]){
-                Container * firstC = categorySortedContainers[i][0];
-                if(usedContainerPreviously == firstC){
-                    resolveConflict = true;
-                }else{
-                    //resolve
-                    if(catContainersCount[firstC->bestCandidate] == 1) {
-                        resolveConflict = true;
-                    }else{
-                        catContainersCount[firstC->bestCandidate]--;
-                        firstC->bestCandidate = i;
-                        catContainersCount[firstC->bestCandidate]++;
-                    }
+    vector<Container *> sortedContainers[3];
+    for(int i = 0; i < containersCount; i ++){
+        Container * c = containers[i];
+        sortedContainers[0].push_back(c);
+        sortedContainers[1].push_back(c);
+        sortedContainers[2].push_back(c);
+    }
+    cout<<"";
+    for(int i = 0; i < 3 ; i++){
+        sort(sortedContainers[i].begin(), sortedContainers[i].end(), Container::Comparator(i));
+    }
+    cout<<"";
+    for(int i = 0; i < 3 ; i++){
+        if(catContainersCount[i] == 0 && catPresent[i]){
+            long minDelta = 2147483647;
+            int bestContainer = -1;
+            for(int j = 0; j < sortedContainers[i].size(); j ++){
+                Container * asksFor = sortedContainers[i][j];
+                int prev = asksFor->getEffortForCategory(asksFor->bestCandidate);
+                int next = asksFor->getEffortForCategory(i);
+                if(next - prev < minDelta){
+                    minDelta = next - prev;
+                    bestContainer = j;
                 }
-                usedContainerPreviously = firstC;
+            }
+            Container * asksFor = sortedContainers[i][bestContainer];
+            if(catContainersCount[asksFor->bestCandidate] != 1){
+                catContainersCount[asksFor->bestCandidate]--;
+                asksFor->bestCandidate = i;
+                catContainersCount[i]++;
+            }else{
+                cout<<"CHAIN TO DO";
             }
         }
-        if(resolveConflict)
-            cout<<"REWRITE!";
     }
-
-
-
-
     long long sum = 0;
     for(int i = 0; i < containersCount; i ++){
         Container * c = containers[i];
-        sum += c->getEffortForCategory(c->bestCandidate);
+        long tmp = c->getEffortForCategory(c->bestCandidate);
+        sum += tmp;
     }
     cout<<sum;
-    long long t[3] = {0};
-   for(int i = 0; i < 3; i ++){
-       Container * c1 = containers[0];
-       Container * c2 = containers[1];
-       Container * c3 = containers[2];
-       int in1 = (i + 1) % 3;
-       int in2 = (i + 2) % 3;
-       t[i] = c1->getEffortForCategory(i) + c2->getEffortForCategory(in1) + c3->getEffortForCategory(in2);
-       cout<<"";
-   }
+    long long t[4] = {0};
+    for(int i = 0; i < 4; i ++){
+        Container * c1 = containers[0];
+        Container * c2 = containers[1];
+        Container * c3 = containers[2];
+    }
     for(int i = 0; i < 5000; i ++){
-       // cout<<i<<" ";
+        // cout<<i<<" ";
     }
     for(auto c : containers){
         delete c;
     }
+
     return 0;
 }
+
