@@ -125,7 +125,7 @@ int main() {
         }
     }
     if(checkAll){
-        int bestScore = 2147483647;
+        long bestScore = 2147483647;
         int bestI;
         int bestJ;
         int bestK;
@@ -136,7 +136,7 @@ int main() {
                     Container * c1 = sortedContainers[1][j];
                     Container * c2 = sortedContainers[2][k];
                     if(c0 != c1 && c1 != c2 && c0 != c2){
-                        int score = c0->countDelta(0) + c1->countDelta(1) + c2->countDelta(2);
+                        long score = c0->countDelta(0) + c1->countDelta(1) + c2->countDelta(2);
                         if(score < bestScore){
                             bestScore = score;
                             bestI = i;
