@@ -142,6 +142,7 @@ int main() {
                 }
                 if(bestCombination == 1){
                     firstBestForLacking->bestCandidate = i;
+                    secondBestForHavingOne->bestCandidate = catHavingOne;
                 }
 
             }
