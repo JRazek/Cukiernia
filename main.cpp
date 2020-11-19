@@ -110,6 +110,7 @@ int main() {
     for(int i = 0; i < 3 ; i++){
         sort(sortedContainers[i].begin(), sortedContainers[i].end(), Container::Comparator(i));
     }
+    bool checkAll = false;
     for(int i = 0; i < 3 ; i++){
         if(catContainersCount[i] == 0 && catPresent[i]){
             Container * asksFor = sortedContainers[i][0];
@@ -119,50 +120,47 @@ int main() {
                 catContainersCount[asksFor->bestCandidate] ++;
             }
             else{
-                Container * firstBestForHavingOne = sortedContainers[asksFor->bestCandidate][0];
-                Container * secondBestForHavingOne = sortedContainers[asksFor->bestCandidate][1];
-
-                int catHavingOne = asksFor->bestCandidate;
-                Container * firstBestForLacking = sortedContainers[i][0];
-                Container * secondBestForLacking = sortedContainers[i][1];
-
-                int bestCombination = -1;
-                long bestCombinationScore = 2147483647;
-
-
-                if(secondBestForLacking->countDelta(i) < bestCombinationScore){
-                    bestCombinationScore = secondBestForLacking->countDelta(i);
-                    bestCombination = 0;
-                }
-
-                if(secondBestForHavingOne->countDelta(catHavingOne) + firstBestForLacking->countDelta(i) < bestCombinationScore){
-                    bestCombination = 1;
-                    bestCombinationScore = secondBestForHavingOne->countDelta(catHavingOne) + firstBestForLacking->countDelta(i);
-                }
-                if(secondBestForHavingOne != secondBestForLacking){
-                    if(secondBestForHavingOne->countDelta(catHavingOne) + secondBestForHavingOne->countDelta(i) < bestCombinationScore){
-                        bestCombination = 2;
+                checkAll = true;
+            }
+        }
+    }
+    if(checkAll){
+        int bestScore = 2147483647;
+        int bestI;
+        int bestJ;
+        int bestK;
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                for (int k = 0; k < 3; k++) {
+                    Container * c0 = sortedContainers[0][i];
+                    Container * c1 = sortedContainers[1][j];
+                    Container * c2 = sortedContainers[2][k];
+                    if(c0 != c1 && c1 != c2 && c0 != c2){
+                        int score = c0->countDelta(0) + c1->countDelta(1) + c2->countDelta(2);
+                        if(score < bestScore){
+                            bestScore = score;
+                            bestI = i;
+                            bestJ = j;
+                            bestK = k;
+                        }
                     }
-                }
-                if(bestCombination == 0){
-                    catContainersCount[secondBestForLacking->bestCandidate] --;
-                    secondBestForLacking->bestCandidate = i;
-                    catContainersCount[secondBestForLacking->bestCandidate] ++;
-                }
-                if(bestCombination == 1){
-                    catContainersCount[firstBestForLacking->bestCandidate] --;
-                    firstBestForLacking->bestCandidate = i;
-                    catContainersCount[firstBestForLacking->bestCandidate] ++;
-
-                    catContainersCount[secondBestForHavingOne->bestCandidate] --;
-                    secondBestForHavingOne->bestCandidate = catHavingOne;
-                    catContainersCount[secondBestForHavingOne->bestCandidate] ++;
-                }
-                if(bestCombination == 2){
-                    cout<<"";
                 }
             }
         }
+        Container * c0 = sortedContainers[0][bestI];
+        catContainersCount[c0->bestCandidate] -- ;
+        c0->bestCandidate = 0;
+        catContainersCount[c0->bestCandidate] ++ ;
+
+        Container * c1 = sortedContainers[1][bestJ];
+        catContainersCount[c1->bestCandidate] -- ;
+        c1->bestCandidate = 1;
+        catContainersCount[c1->bestCandidate] ++ ;
+
+        Container * c2 = sortedContainers[2][bestK];
+        catContainersCount[c2->bestCandidate] -- ;
+        c2->bestCandidate = 2;
+        catContainersCount[c2->bestCandidate] ++ ;
     }
     long long sum = 0;
     for(int i = 0; i < containersCount; i ++){
