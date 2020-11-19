@@ -43,7 +43,7 @@ struct Container{
             return e1 < e2;
         }
     };
-    int countDelta(int cat){
+    long countDelta(int cat){
         return this->getEffortForCategory(cat) - this->getEffortForCategory(this->bestCandidate);
     }
 };
@@ -125,7 +125,7 @@ int main() {
                 Container * secondBestForLacking = sortedContainers[i][1];
 
                 int bestCombination = -1;
-                int bestCombinationScore = 2147483647;
+                long bestCombinationScore = 2147483647;
 
 
                 if(secondBestForLacking->countDelta(i) < bestCombinationScore){
@@ -134,24 +134,16 @@ int main() {
                 }
 
                 if(secondBestForHavingOne->countDelta(catHavingOne) + firstBestForLacking->countDelta(i) < bestCombinationScore){
-                    bestCombinationScore = secondBestForHavingOne->countDelta(catHavingOne) + firstBestForLacking->countDelta(i);
                     bestCombination = 1;
                 }
 
-                if(secondBestForHavingOne != secondBestForLacking){
-                    if(secondBestForHavingOne->countDelta(catHavingOne) + secondBestForHavingOne->countDelta(i) < bestCombinationScore){
-                        bestCombination = 2;
-                    }
-                }
                 if(bestCombination == 0){
                     secondBestForLacking->bestCandidate = i;
                 }
                 if(bestCombination == 1){
                     firstBestForLacking->bestCandidate = i;
                 }
-                if(bestCombination == 2){
-                    secondBestForLacking->bestCandidate = i;
-                }
+
             }
         }
     }
