@@ -114,7 +114,9 @@ int main() {
         if(catContainersCount[i] == 0 && catPresent[i]){
             Container * asksFor = sortedContainers[i][0];
             if(catContainersCount[asksFor->bestCandidate] != 1){
+                catContainersCount[asksFor->bestCandidate] --;
                 asksFor->bestCandidate = i;
+                catContainersCount[asksFor->bestCandidate] ++;
             }
             else{
                 Container * firstBestForHavingOne = sortedContainers[asksFor->bestCandidate][0];
@@ -135,16 +137,30 @@ int main() {
 
                 if(secondBestForHavingOne->countDelta(catHavingOne) + firstBestForLacking->countDelta(i) < bestCombinationScore){
                     bestCombination = 1;
+                    bestCombinationScore = secondBestForHavingOne->countDelta(catHavingOne) + firstBestForLacking->countDelta(i);
                 }
-
+                if(secondBestForHavingOne != secondBestForLacking){
+                    if(secondBestForHavingOne->countDelta(catHavingOne) + secondBestForHavingOne->countDelta(i) < bestCombinationScore){
+                        bestCombination = 2;
+                    }
+                }
                 if(bestCombination == 0){
+                    catContainersCount[secondBestForLacking->bestCandidate] --;
                     secondBestForLacking->bestCandidate = i;
+                    catContainersCount[secondBestForLacking->bestCandidate] ++;
                 }
                 if(bestCombination == 1){
+                    catContainersCount[firstBestForLacking->bestCandidate] --;
                     firstBestForLacking->bestCandidate = i;
-                    secondBestForHavingOne->bestCandidate = catHavingOne;
-                }
+                    catContainersCount[firstBestForLacking->bestCandidate] ++;
 
+                    catContainersCount[secondBestForHavingOne->bestCandidate] --;
+                    secondBestForHavingOne->bestCandidate = catHavingOne;
+                    catContainersCount[secondBestForHavingOne->bestCandidate] ++;
+                }
+                if(bestCombination == 2){
+                    cout<<"";
+                }
             }
         }
     }
