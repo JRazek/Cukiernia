@@ -35,14 +35,17 @@ struct Container{
         }
     private :
         static bool compareQuery(Container * c1, Container * c2, int catNum, bool negative = false) {
-            long e1 = c1->getEffortForCategory(catNum);
-            long e2 = c2->getEffortForCategory(catNum);
+            long e1 = c1->countDelta(catNum);
+            long e2 = c2->countDelta(catNum);
             if(negative){
                 return e1 > e2;
             }
             return e1 < e2;
         }
     };
+    int countDelta(int cat){
+        return this->getEffortForCategory(cat) - this->getEffortForCategory(this->bestCandidate);
+    }
 };
 vector<string> split(string str, char divider){
     vector<string> result;
@@ -107,28 +110,48 @@ int main() {
     for(int i = 0; i < 3 ; i++){
         sort(sortedContainers[i].begin(), sortedContainers[i].end(), Container::Comparator(i));
     }
-    cout<<"";
     for(int i = 0; i < 3 ; i++){
         if(catContainersCount[i] == 0 && catPresent[i]){
-            long minDelta = 2147483647;
-            int bestContainer = -1;
-            for(int j = 0; j < sortedContainers[i].size(); j ++){
-                Container * asksFor = sortedContainers[i][j];
-                int prev = asksFor->getEffortForCategory(asksFor->bestCandidate);
-                int next = asksFor->getEffortForCategory(i);
-                if(next - prev < minDelta){
-                    minDelta = next - prev;
-                    bestContainer = j;
-                }
-            }
-            Container * asksFor = sortedContainers[i][bestContainer];
+            Container * asksFor = sortedContainers[i][0];
             if(catContainersCount[asksFor->bestCandidate] != 1){
-                catContainersCount[asksFor->bestCandidate]--;
                 asksFor->bestCandidate = i;
-                catContainersCount[i]++;
             }
             else{
-                
+                Container * firstBestForHavingOne = sortedContainers[asksFor->bestCandidate][0];
+                Container * secondBestForHavingOne = sortedContainers[asksFor->bestCandidate][1];
+
+                int catHavingOne = asksFor->bestCandidate;
+                Container * firstBestForLacking = sortedContainers[i][0];
+                Container * secondBestForLacking = sortedContainers[i][1];
+
+                int bestCombination = -1;
+                int bestCombinationScore = 2147483647;
+
+
+                if(secondBestForLacking->countDelta(i) < bestCombinationScore){
+                    bestCombinationScore = secondBestForLacking->countDelta(i);
+                    bestCombination = 0;
+                }
+
+                if(secondBestForHavingOne->countDelta(catHavingOne) + firstBestForLacking->countDelta(i) < bestCombinationScore){
+                    bestCombinationScore = secondBestForHavingOne->countDelta(catHavingOne) + firstBestForLacking->countDelta(i);
+                    bestCombination = 1;
+                }
+
+                if(secondBestForHavingOne != secondBestForLacking){
+                    if(secondBestForHavingOne->countDelta(catHavingOne) + secondBestForHavingOne->countDelta(i) < bestCombinationScore){
+                        bestCombination = 2;
+                    }
+                }
+                if(bestCombination == 0){
+                    secondBestForLacking->bestCandidate = i;
+                }
+                if(bestCombination == 1){
+                    firstBestForLacking->bestCandidate = i;
+                }
+                if(bestCombination == 2){
+                    secondBestForLacking->bestCandidate = i;
+                }
             }
         }
     }
