@@ -155,15 +155,6 @@ int main() {
         sum += tmp;
     }
     cout<<sum;
-    long long t[4] = {0};
-    for(int i = 0; i < 4; i ++){
-        Container * c1 = containers[0];
-        Container * c2 = containers[1];
-        Container * c3 = containers[2];
-    }
-    for(int i = 0; i < 5000; i ++){
-        // cout<<i<<" ";
-    }
     for(auto c : containers){
         delete c;
     }
